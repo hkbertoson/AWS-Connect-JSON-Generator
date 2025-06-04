@@ -1,21 +1,22 @@
 {
-	"name": "asd-text-snippets",
+	"name": "aws-connect-json-generator",
 	"type": "module",
 	"version": "0.0.1",
 	"scripts": {
 		"dev": "astro dev",
 		"build": "astro build",
-		"preview": "astro build && wrangler dev",
-		"astro": "astro",
-		"deploy": "astro build && wrangler deploy",
-		"cf-typegen": "wrangler types"
+		"preview": "astro build",
+		"astro": "astro"
 	},
 	"dependencies": {
-		"@astrojs/cloudflare": "^12.5.3",
-		"astro": "^5.8.2"
+		"@astrojs/alpinejs": "^0.4.8",
+		"@tailwindcss/vite": "^4.1.8",
+		"alpinejs": "^3.14.9",
+		"astro": "^5.8.2",
+		"tailwindcss": "^4.1.8"
 	},
 	"devDependencies": {
-		"@types/node": "^22.15.29",
-		"wrangler": "^4.19.1"
+		"@types/alpinejs": "^3.13.11",
+		"@types/node": "^22.15.29"
 	}
 }
