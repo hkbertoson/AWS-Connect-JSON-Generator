@@ -18,223 +18,333 @@ import Baselayout from '../layouts/Baselayout.astro';
 				</label>
 				<select id="template" class="w-full border rounded px-3 py-2">
 					<option value="">-- Select a Template --</option>
-					<option value="cti">CTI Pin Only Lookup</option>
-					<option value="fem">Fem ID and Message</option>
-				</select>
-			</div>
-
-			<div id="fields" class="space-y-3">
-				<!-- Default row -->
-				<div class="flex gap-2 items-center">
-					<input
-						type="text"
-						placeholder="Attribute Name"
-						class="name flex-1 min-w-[200px] px-3 py-2 border rounded"
-					/>
-					<input
-						type="text"
-						placeholder="Attribute Value"
-						class="value flex-1 min-w-[200px] px-3 py-2 border rounded"
-					/>
-					<button
-						type="button"
-						class="remove hidden px-3 py-2 text-red-600 hover:text-red-800 shrink-0"
+					<option
+						value="cti"
+						title="CTI Pin Lookup using ServiceNow API and employee number"
 					>
-						✕
+						CTI – Pin Only Lookup
+					</option>
+					<option
+						value="fem"
+						title="Fetch and play FEM status and message from external source"
+					>
+						FEM – ID and Message
+					</option>
+					<option
+						value="genericNoCBANoEWT"
+						title="No callback and no expected wait time messaging"
+					>
+						Generic – No Callback, No EWT
+					</option>
+					<option
+						value="genericCBANoEWT"
+						title="Allows callback option, but no expected wait time announced"
+					>
+						Generic – Callback Only
+					</option>
+					<option
+						value="genericEWTNoCBA"
+						title="Announces expected wait time but no callback option"
+					>
+						Generic – EWT Only
+					</option>
+					<option
+						value="genericCBAEWT"
+						title="Enables both callback and expected wait time messaging"
+					>
+						Generic – Callback and EWT
+					</option>
+					<option
+						value="genericCustomCallBackQueue"
+						title="Routes callback to a custom queue ARN instead of default"
+					>
+						Generic – Custom Callback Queue
+					</option>
+				</select>
+				<div id="fields" class="space-y-3">
+					<!-- Default row -->
+					<div class="flex gap-2 items-center">
+						<input
+							type="text"
+							placeholder="Attribute Name"
+							class="name flex-1 min-w-[200px] px-3 py-2 border rounded"
+						/>
+						<input
+							type="text"
+							placeholder="Attribute Value"
+							class="value flex-1 min-w-[200px] px-3 py-2 border rounded"
+						/>
+						<button
+							type="button"
+							class="remove hidden px-3 py-2 text-red-600 hover:text-red-800 shrink-0"
+						>
+							✕
+						</button>
+					</div>
+				</div>
+
+				<div class="flex flex-wrap gap-3">
+					<button
+						id="addField"
+						class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
+					>
+						+ Add Field
+					</button>
+					<button
+						id="resetFields"
+						class="px-4 py-2 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600"
+					>
+						Reset Fields
+					</button>
+					<button
+						id="generateJson"
+						class="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
+					>
+						Generate JSON
+					</button>
+					<button
+						x-on:click="show()"
+						id="copyJson"
+						class="px-4 py-2 text-sm bg-gray-700 text-white rounded hover:bg-gray-800"
+					>
+						Copy JSON
 					</button>
 				</div>
-			</div>
 
-			<div class="flex flex-wrap gap-3">
-				<button
-					id="addField"
-					class="px-4 py-2 text-sm bg-blue-600 text-white rounded hover:bg-blue-700"
-				>
-					+ Add Field
-				</button>
-				<button
-					id="resetFields"
-					class="px-4 py-2 text-sm bg-yellow-500 text-white rounded hover:bg-yellow-600"
-				>
-					Reset Fields
-				</button>
-				<button
-					id="generateJson"
-					class="px-4 py-2 text-sm bg-green-600 text-white rounded hover:bg-green-700"
-				>
-					Generate JSON
-				</button>
-				<button
-					x-on:click="show()"
-					id="copyJson"
-					class="px-4 py-2 text-sm bg-gray-700 text-white rounded hover:bg-gray-800"
-				>
-					Copy JSON
-				</button>
-			</div>
+				<pre
+					id="output"
+					class="bg-gray-100 p-4 rounded text-sm overflow-auto whitespace-pre-wrap">
+				</pre>
 
-			<pre
-				id="output"
-				class="bg-gray-100 p-4 rounded text-sm overflow-auto whitespace-pre-wrap">
-			</pre>
-
-			<div
-				x-show="open"
-				x-transition
-				class="fixed top-4 right-4 z-50 bg-green-600 text-white px-4 py-2 rounded shadow-lg"
-				style="display: none;"
-				@click="open = false"
-			>
-				<span class="text-xl font-semibold" x-text="message"></span>
+				<div
+					x-show="open"
+					x-transition
+					class="fixed top-4 right-4 z-50 bg-green-600 text-white px-4 py-2 rounded shadow-lg"
+					style="display: none;"
+					@click="open = false"
+				>
+					<span class="text-xl font-semibold" x-text="message"></span>
+				</div>
 			</div>
 		</div>
-	</body>
 
-	<script>
-		// Elements
-		const addFieldBtn = document.getElementById(
-			'addField'
-		) as HTMLButtonElement;
-		const resetBtn = document.getElementById(
-			'resetFields'
-		) as HTMLButtonElement;
-		const generateBtn = document.getElementById(
-			'generateJson'
-		) as HTMLButtonElement;
-		const copyBtn = document.getElementById('copyJson') as HTMLButtonElement;
-		const fieldsDiv = document.getElementById('fields') as HTMLDivElement;
-		const output = document.getElementById('output') as HTMLPreElement;
-		const templateSelect = document.getElementById(
-			'template'
-		) as unknown as HTMLSelectElement;
+		<script>
+			// Elements
+			const addFieldBtn = document.getElementById(
+				'addField'
+			) as HTMLButtonElement;
+			const resetBtn = document.getElementById(
+				'resetFields'
+			) as HTMLButtonElement;
+			const generateBtn = document.getElementById(
+				'generateJson'
+			) as HTMLButtonElement;
+			const copyBtn = document.getElementById('copyJson') as HTMLButtonElement;
+			const fieldsDiv = document.getElementById('fields') as HTMLDivElement;
+			const output = document.getElementById('output') as HTMLPreElement;
+			const templateSelect = document.getElementById(
+				'template'
+			) as unknown as HTMLSelectElement;
 
-		const identifier = 'bf2340c7-f41b-4997-8b1d-9756291b26d1';
+			const identifier = 'bf2340c7-f41b-4997-8b1d-9756291b26d1';
 
-		// Templates
-		const templates: Record<string, Record<string, string>> = {
-			cti: {
-				CTILookupMethod: 'pin_only',
-				CTIPrompt: '<speak>Please enter your user ID.</speak>',
-				CTI_V2_param_store: '/example.service-now.com',
-				CTI_V2_apiUrl: '/api/now/table/sys_user',
-				CTI_V2_uriParams:
-					'?sysparm_query=employee_number={pin}^active=true&sysparm_display_value=true',
-				CTITryAgain: '<speak>Invalid user ID. Please try again.</speak>',
-			},
-			fem: {
-				femStatus: '$.External.femStatus',
-				femText: '$.External.femText',
-			},
-		};
+			// Templates
+			const templates: Record<string, Record<string, string>> = {
+				cti: {
+					CTILookupMethod: 'pin_only',
+					CTIPrompt: '<speak>Please enter your user ID.</speak>',
+					CTI_V2_param_store: '/example.service-now.com',
+					CTI_V2_apiUrl: '/api/now/table/sys_user',
+					CTI_V2_uriParams:
+						'?sysparm_query=employee_number={pin}^active=true&sysparm_display_value=true',
+					CTITrayAgain: '<speak>Invalid user ID. Please try again.</speak>',
+				},
+				genericNoCBANoEWT: {
+					NoAgentStaffedMessage:
+						'<speak>There are no agents available at this time.</speak>',
+					InitialWaitMessage:
+						'<speak>All of our agents are currently busy. Please hold, and your call will be answered, as soon as an agent becomes available.</speak>',
+					SecondWaitMessage:
+						'<speak>Our agents are still busy assisting other callers. Please continue to hold, and your call will be answered as soon as possible.</speak>',
+				},
+				genericCBANoEWT: {
+					NoAgentStaffedMessage:
+						'<speak>There are no agents available at this time.</speak>',
+					InitialWaitMessage:
+						'<speak>Please hold while we connect you to an agent.</speak>',
+					SecondWaitMessage:
+						'<speak>Our agents are still busy assisting other callers. Please continue to hold, and your call will be answered as soon as possible.</speak>',
+					CallbackPrompt:
+						'<speak>If you would like to receive a callback when an agent is available, press 1. Otherwise, please continue to hold.</speak>',
+					CallbackCallerIDConfirm:
+						'<speak>Press 1 if you want to be called back on the number you are calling from, or press 2 to enter another number.</speak>',
+					CallbackEnterNumber:
+						'<speak>Please enter the number you want us to call you back on, including the country code and area code.</speak>',
+					CallbackInvalidNumber:
+						'<speak>Sorry, the number you entered is invalid. Please try again.</speak>',
+					CallbackConfirmed:
+						'<speak>Your callback is scheduled. We will call you back as soon as an agent is available. Goodbye.</speak>',
+				},
+				genericEWTNoCBA: {
+					NoAgentStaffedMessage:
+						'<speak>There are no agents available at this time.</speak>',
+					YourWaitTimeIs_Msg: '<speak>Your expected wait time is </speak>',
+					InitialWaitMessage:
+						'<speak>Thank you for calling. Please hold and we will connect you shortly.</speak>',
+					SecondWaitMessage:
+						'<speak>Our agents are still busy assisting other callers. Please continue to hold, and your call will be answered as soon as possible.</speak>',
+				},
+				genericCBAEWT: {
+					YourWaitTimeIs_Msg: '<speak>Your expected wait time is </speak>',
+					InitialWaitMessage:
+						'<speak>Please hold, we are connecting you to the next available agent.</speak>',
+					SecondWaitMessage:
+						'<speak>Our agents are still busy assisting other callers. Please continue to hold, and your call will be answered as soon as possible.</speak>',
+					CallbackPrompt:
+						"<speak>If you'd like us to call you back when an agent is available, press 1. Otherwise, please remain on the line.</speak>",
+					CallbackCallerIDConfirm:
+						'<speak>Press 1 to be called back on your current number, or 2 to enter a different number.</speak>',
+					CallbackEnterNumber:
+						'<speak>Please enter your callback number, including country and area code.</speak>',
+					CallbackInvalidNumber:
+						'<speak>That number doesn’t look right. Try again.</speak>',
+					CallbackConfirmed:
+						'<speak>We’ve scheduled your callback. Goodbye!</speak>',
+				},
+				genericCustomCallBackQueue: {
+					InitialWaitMessage:
+						'<speak>All agents are currently assisting others. Please hold.</speak>',
+					SecondWaitMessage:
+						'<speak>Our agents are still busy assisting other callers. Please continue to hold, and your call will be answered as soon as possible.</speak>',
+					CallbackPrompt:
+						'<speak>To receive a callback, press 1 now. Otherwise, continue to hold.</speak>',
+					CallbackCallerIDConfirm:
+						'<speak>Press 1 to use this number, or 2 to enter another.</speak>',
+					CallbackEnterNumber:
+						'<speak>Enter your callback number including country code.</speak>',
+					CallbackInvalidNumber:
+						'<speak>That number was not valid. Please try again.</speak>',
+					CallbackConfirmed:
+						'<speak>Callback scheduled. Thank you and goodbye.</speak>',
+					CallbackQueue:
+						'arn:aws:connect:us-east-1:123456789012:instance/abcdefg/queue/alt-callback-queue',
+				},
+				fem: {
+					femStatus: '$.External.femStatus',
+					femText: '$.External.femText',
+				},
+			};
 
-		// Helper: Create a field row
-		function createRow(name = '', value = '') {
-			const row = document.createElement('div');
-			row.className = 'flex gap-2 items-center';
+			// Helper: Create a field row
+			function createRow(name = '', value = '') {
+				const row = document.createElement('div');
+				row.className = 'flex gap-2 items-center';
 
-			row.innerHTML = `
+				row.innerHTML = `
 			<input type="text" value="${name}" placeholder="Attribute Name" class="name w-1/2 px-3 py-2 border rounded" />
 			<input type="text" value="${value}" placeholder="Attribute Value" class="value w-1/2 px-3 py-2 border rounded" />
 			<button type="button" class="remove hidden px-3 py-2 text-red-600 hover:text-red-800">✕</button>
 		`;
 
-			const removeBtn = row.querySelector('.remove') as HTMLButtonElement;
+				const removeBtn = row.querySelector('.remove') as HTMLButtonElement;
 
-			removeBtn.addEventListener('click', () => {
-				row.remove();
+				removeBtn.addEventListener('click', () => {
+					row.remove();
+					updateRemoveButtons();
+				});
+
+				fieldsDiv.appendChild(row);
 				updateRemoveButtons();
+			}
+
+			// Helper: Show/hide remove buttons based on row count
+			function updateRemoveButtons() {
+				const allRemoveBtns =
+					fieldsDiv.querySelectorAll<HTMLButtonElement>('.remove');
+				allRemoveBtns.forEach((btn) =>
+					btn.classList.toggle('hidden', allRemoveBtns.length === 1)
+				);
+			}
+
+			// Event: Add field
+			addFieldBtn.addEventListener('click', () => {
+				createRow();
 			});
 
-			fieldsDiv.appendChild(row);
-			updateRemoveButtons();
-		}
+			// Event: Reset fields and template
+			resetBtn.addEventListener('click', () => {
+				fieldsDiv.innerHTML = '';
+				createRow();
+				output.textContent = '';
+				templateSelect.selectedIndex = 0;
+			});
 
-		// Helper: Show/hide remove buttons based on row count
-		function updateRemoveButtons() {
-			const allRemoveBtns =
-				fieldsDiv.querySelectorAll<HTMLButtonElement>('.remove');
-			allRemoveBtns.forEach((btn) =>
-				btn.classList.toggle('hidden', allRemoveBtns.length === 1)
-			);
-		}
+			// Event: Generate JSON
+			generateBtn.addEventListener('click', () => {
+				const names =
+					fieldsDiv.querySelectorAll<HTMLInputElement>('input.name');
+				const values =
+					fieldsDiv.querySelectorAll<HTMLInputElement>('input.value');
 
-		// Event: Add field
-		addFieldBtn.addEventListener('click', () => {
-			createRow();
-		});
-
-		// Event: Reset fields and template
-		resetBtn.addEventListener('click', () => {
-			fieldsDiv.innerHTML = '';
-			createRow();
-			output.textContent = '';
-			templateSelect.selectedIndex = 0;
-		});
-
-		// Event: Generate JSON
-		generateBtn.addEventListener('click', () => {
-			const names = fieldsDiv.querySelectorAll<HTMLInputElement>('input.name');
-			const values =
-				fieldsDiv.querySelectorAll<HTMLInputElement>('input.value');
-
-			const attributes: Record<string, string> = {};
-			for (let i = 0; i < names.length; i++) {
-				const key = names[i].value.trim();
-				const val = values[i].value.trim();
-				if (key && val) {
-					attributes[key] = val;
+				const attributes: Record<string, string> = {};
+				for (let i = 0; i < names.length; i++) {
+					const key = names[i].value.trim();
+					const val = values[i].value.trim();
+					if (key && val) {
+						attributes[key] = val;
+					}
 				}
-			}
 
-			const result = {
-				Version: '2019-10-30',
-				StartAction: '',
-				Metadata: {
-					entryPointPosition: {x: 40, y: 40},
-					ActionMetadata: {
-						[identifier]: {
-							position: {x: 206.4, y: -306.4},
-							dynamicParams: [],
+				const result = {
+					Version: '2019-10-30',
+					StartAction: '',
+					Metadata: {
+						entryPointPosition: {x: 40, y: 40},
+						ActionMetadata: {
+							[identifier]: {
+								position: {x: 206.4, y: -306.4},
+								dynamicParams: [],
+							},
 						},
+						Annotations: [],
 					},
-					Annotations: [],
-				},
-				Actions: [
-					{
-						Parameters: {
-							Attributes: attributes,
-							TargetContact: 'Current',
+					Actions: [
+						{
+							Parameters: {
+								Attributes: attributes,
+								TargetContact: 'Current',
+							},
+							Identifier: identifier,
+							Type: 'UpdateContactAttributes',
+							Transitions: {
+								NextAction: '',
+								Errors: [{NextAction: '', ErrorType: 'NoMatchingError'}],
+							},
 						},
-						Identifier: identifier,
-						Type: 'UpdateContactAttributes',
-						Transitions: {
-							NextAction: '',
-							Errors: [{NextAction: '', ErrorType: 'NoMatchingError'}],
-						},
-					},
-				],
-			};
+					],
+				};
 
-			output.textContent = JSON.stringify(result, null, 2);
-		});
+				output.textContent = JSON.stringify(result, null, 2);
+			});
 
-		// Event: Copy JSON
-		copyBtn.addEventListener('click', () => {
-			const json = output.textContent?.trim();
-			if (json) {
-				navigator.clipboard.writeText(json);
-			}
-		});
-		// Event: Load template
-		templateSelect.addEventListener('change', () => {
-			const selected = templateSelect.value;
-			const selectedTemplate = templates[selected];
-			if (!selectedTemplate) return;
+			// Event: Copy JSON
+			copyBtn.addEventListener('click', () => {
+				const json = output.textContent?.trim();
+				if (json) {
+					navigator.clipboard.writeText(json);
+				}
+			});
+			// Event: Load template
+			templateSelect.addEventListener('change', () => {
+				const selected = templateSelect.value;
+				const selectedTemplate = templates[selected];
+				if (!selectedTemplate) return;
 
-			fieldsDiv.innerHTML = '';
-			for (const [key, val] of Object.entries(selectedTemplate)) {
-				createRow(key, val);
-			}
-		});
-	</script>
+				fieldsDiv.innerHTML = '';
+				for (const [key, val] of Object.entries(selectedTemplate)) {
+					createRow(key, val);
+				}
+			});
+		</script>
+	</body>
 </Baselayout>
