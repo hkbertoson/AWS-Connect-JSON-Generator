@@ -301,7 +301,7 @@ class AWSConnectGenerator {
 		textArea.select();
 
 		try {
-			document.execCommand('copy');
+			navigator.clipboard.writeText(text); // Fallback to clipboard API
 			this.showNotification(NOTIFICATION_MESSAGES.COPIED);
 		} catch {
 			this.showNotification(NOTIFICATION_MESSAGES.COPY_FAILED);
