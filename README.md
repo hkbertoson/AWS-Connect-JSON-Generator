@@ -16,9 +16,9 @@ A lightweight, interactive tool built with Astro, Alpine.js, and Tailwind CSS th
 
 ## 🧰 Tech Stack
 
-- **Astro** — Modern, fast static site builder  
-- **Alpine.js** — Lightweight reactivity for interactivity  
-- **Tailwind CSS** — Utility-first styling  
+- **Astro** — Modern, fast static site builder
+- **Alpine.js** — Lightweight reactivity for interactivity
+- **Tailwind CSS** — Utility-first styling
 - **TypeScript** — Safe, typed scripting
 
 ---
@@ -30,7 +30,7 @@ A lightweight, interactive tool built with Astro, Alpine.js, and Tailwind CSS th
 ```bash
 git clone https://github.com/hkbertoson/AWS-Connect-JSON-Generator.git
 cd connect-json-generator
-````
+```
 
 ### 2. Install Dependencies
 
