@@ -2,8 +2,28 @@ export interface AttributeTemplate {
 	[key: string]: string;
 }
 
+export interface BlockTemplate {
+	name?: string;
+	fields: AttributeTemplate;
+}
+
+export interface MultiBlockTemplate {
+	blocks: BlockTemplate[];
+}
+
+export interface TemplateMetadata {
+	name: string;
+	description: string;
+	category?: string;
+}
+
+export interface TemplateDefinition {
+	template: AttributeTemplate | MultiBlockTemplate;
+	metadata: TemplateMetadata;
+}
+
 export interface TemplateCollection {
-	[templateName: string]: AttributeTemplate;
+	[templateName: string]: TemplateDefinition;
 }
 
 export interface ContactFlowAction {
@@ -35,15 +55,21 @@ export interface ContactFlowJSON {
 	Actions: ContactFlowAction[];
 }
 
+export interface Block {
+	id: string;
+	name?: string;
+	fields: FormField[];
+}
+
 export interface FormField {
 	name: string;
 	value: string;
 }
 
 export interface AppState {
-	fields: FormField[];
+	blocks: Block[];
 	selectedTemplate: string;
-	history: FormField[][];
+	history: Block[][];
 	historyIndex: number;
 }
 
