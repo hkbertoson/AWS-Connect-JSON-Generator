@@ -6,114 +6,82 @@ import Toast from '../components/Toast.astro';
 ---
 
 <Baselayout>
-	<body class="bg-gray-50 min-h-screen p-8">
-		<div
-			x-data="{ open: false, message: 'JSON copied to clipboard!', type: 'success', show(msg = 'Success!', msgType = 'success') { this.message = msg; this.type = msgType; this.open = true; setTimeout(() => this.open = false, 3000); } }"
-			class="max-w-3xl mx-auto bg-white rounded shadow p-6 space-y-6"
-		>
-			<header>
-				<h1 class="text-2xl font-bold text-gray-800">Amazon Connect JSON Generator</h1>
-				<p class="text-gray-600 mt-2">
-					Generate Amazon Connect SetContactAttributes JSON blocks with ease. Use keyboard
-					shortcuts: Ctrl+Enter to generate, Ctrl+C to copy, Ctrl+N to add field.
-				</p>
-			</header>
+	<div
+		x-data="{ open: false, message: 'JSON copied to clipboard!', type: 'success', show(msg = 'Success!', msgType = 'success') { this.message = msg; this.type = msgType; this.open = true; setTimeout(() => this.open = false, 3000); } }"
+		class="max-w-3xl mx-auto p-6 space-y-6"
+	>
+		<header>
+			<h1 class="text-2xl font-bold text-gray-800">Amazon Connect JSON Generator</h1>
+			<p class="text-gray-600 mt-2">
+				Generate Amazon Connect SetContactAttributes JSON blocks with ease. Use keyboard shortcuts:
+				Ctrl+Enter to generate, Ctrl+C to copy, Ctrl+N to add field, Ctrl+B to add block.
+			</p>
+		</header>
 
-			<main class="space-y-6">
-				<Select id="template" ariaLabel="Select a predefined template to populate fields">
-					<span slot="label">Load a template</span>
-					<option value="">-- Select a Template --</option>
-					<option value="cti" title="CTI Pin Lookup using ServiceNow API and employee number">
-						CTI – Pin Only Lookup
-					</option>
-					<option value="fem" title="Fetch and play FEM status and message from external source">
-						FEM – ID and Message
-					</option>
-					<option value="genericNoCBANoEWT" title="No callback and no expected wait time messaging">
-						Generic – No Callback, No EWT
-					</option>
-					<option
-						value="genericCBANoEWT"
-						title="Allows callback option, but no expected wait time announced"
-					>
-						Generic – Callback Only
-					</option>
-					<option
-						value="genericEWTNoCBA"
-						title="Announces expected wait time but no callback option"
-					>
-						Generic – EWT Only
-					</option>
-					<option
-						value="genericCBAEWT"
-						title="Enables both callback and expected wait time messaging"
-					>
-						Generic – Callback and EWT
-					</option>
-					<option
-						value="genericCustomCallBackQueue"
-						title="Routes callback to a custom queue ARN instead of default"
-					>
-						Generic – Custom Callback Queue
-					</option>
-				</Select>
+		<main class="space-y-6">
+			<Select id="template" ariaLabel="Select a predefined template to populate fields">
+				<span slot="label">Load a template</span>
+				<!-- Options will be populated dynamically by JavaScript -->
+			</Select>
 
-				<section aria-label="Attribute fields" role="region">
-					<div id="fields" class="space-y-3" aria-live="polite">
-						<!-- Dynamic field rows will be inserted here -->
-					</div>
-				</section>
-
-				<div class="flex flex-wrap gap-3 items-center justify-center">
-					<Button id="addField" variant="primary" ariaLabel="Add new attribute field (Ctrl+N)">
-						+ Add Field
-					</Button>
-					<Button
-						id="resetFields"
-						variant="warning"
-						ariaLabel="Reset all fields to empty state (Ctrl+R)"
-					>
-						Reset Fields
-					</Button>
-					<Button
-						id="generateJson"
-						variant="success"
-						ariaLabel="Generate Amazon Connect JSON from current fields (Ctrl+Enter)"
-					>
-						Generate JSON
-					</Button>
-					<Button
-						id="copyJson"
-						variant="secondary"
-						ariaLabel="Copy generated JSON to clipboard (Ctrl+C)"
-					>
-						Copy JSON
-					</Button>
+			<section aria-label="Attribute blocks" role="region">
+				<div id="blocks" class="space-y-4" aria-live="polite">
+					<!-- Dynamic block containers will be inserted here -->
 				</div>
+			</section>
 
-				<section aria-label="Generated JSON output" role="region">
-					<label for="output" class="block text-sm font-medium text-gray-700 mb-2">
-						Generated JSON Output
-					</label>
-					<pre
-						id="output"
-						class="bg-gray-100 p-4 rounded text-sm overflow-auto whitespace-pre-wrap min-h-[200px] border focus:outline-none focus:ring-2 focus:ring-blue-500"
-						aria-label="Generated JSON output"
-						tabindex="0"
-						role="textbox"
-						aria-readonly="true">
-					</pre>
-				</section>
-			</main>
+			<div class="flex flex-wrap gap-3 items-center justify-center">
+				<Button id="addField" variant="primary" ariaLabel="Add new attribute field (Ctrl+N)">
+					+ Add Field
+				</Button>
+				<Button id="addBlock" variant="primary" ariaLabel="Add new block (Ctrl+B)">
+					+ Add Block
+				</Button>
+				<Button
+					id="resetFields"
+					variant="warning"
+					ariaLabel="Reset all fields to empty state (Ctrl+R)"
+				>
+					Reset Fields
+				</Button>
+				<Button
+					id="generateJson"
+					variant="success"
+					ariaLabel="Generate Amazon Connect JSON from current fields (Ctrl+Enter)"
+				>
+					Generate JSON
+				</Button>
+				<Button
+					id="copyJson"
+					variant="secondary"
+					ariaLabel="Copy generated JSON to clipboard (Ctrl+C)"
+				>
+					Copy JSON
+				</Button>
+			</div>
 
-			<Toast />
+			<section aria-label="Generated JSON output" role="region">
+				<label for="output" class="block text-sm font-medium text-gray-700 mb-2">
+					Generated JSON Output
+				</label>
+				<pre
+					id="output"
+					class="bg-gray-100 p-4 rounded text-sm overflow-auto whitespace-pre-wrap min-h-[200px] border focus:outline-none focus:ring-2 focus:ring-blue-500"
+					aria-label="Generated JSON output"
+					tabindex="0"
+					role="textbox"
+					aria-readonly="true">
+				</pre>
+			</section>
+		</main>
 
-			<!-- Screen reader announcements -->
-			<div id="announcements" aria-live="polite" aria-atomic="true" class="sr-only"></div>
-		</div>
+		<Toast />
 
-		<script src="../scripts/app.ts"></script>
-	</body>
+		<!-- Screen reader announcements -->
+		<div id="announcements" aria-live="polite" aria-atomic="true" class="sr-only"></div>
+	</div>
+
+	<script src="../scripts/app.ts"></script>
 </Baselayout>
 
 <style>
