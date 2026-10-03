@@ -14,7 +14,7 @@
 		"typecheck": "astro check"
 	},
 	"dependencies": {
-		"@astrojs/alpinejs": "^0.4.8",
+		"@astrojs/alpinejs": "^0.5.0",
 		"@tailwindcss/vite": "^4.1.10",
 		"alpinejs": "^3.14.9",
 		"astro": "^5.10.0",
